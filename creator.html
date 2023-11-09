@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat app</title>
+  <style>
+    body{
+      overflow: hidden;
+      background-color:black;
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      justify-content: center;
+    }
+    #sendMsg{
+      position: relative;
+      width:700px;
+      overflow: hidden;
+      min-height: 680px;
+      margin-bottom: 20px;
+    }
+    input{
+      color: black;
+      background-color: aqua;
+      border: none;
+      outline: none;
+      border-radius: 27px;
+      position: absolute;
+      bottom: 40px;
+      width: 100%;
+      padding: 5px;
+      font-size: 40px;
+      height: 50px;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+    @media (max-width:700px) {
+      input{
+        position: absolute;
+        width:400px;
+        left:150px
+      }
+      button{
+        position: absolute;
+        margin-right: 90px;
+      }
+      #sendMsg::scrollbar{
+        width: 0;
+      }
+      
+    }
+    button{
+      color: black;
+      background-color: rgb(173, 255, 255);
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      right: 0;
+      position: absolute;
+      bottom: 40px;
+      width: 150px;
+      height: 60px;
+      padding: 2px;
+      font-size: 40px ;
+    }
+    #messages{
+      width: 700px;
+      height: 600px;
+      background-color: black;
+      overflow: scroll;
+      color: aliceblue;
+      padding: 10px;
+    }
+    #mes1{
+      display: flex;
+      align-items: center;
+      padding: 5px;
+      line-break: anywhere;
+      width: 150px;
+      height: 50px;
+      margin-bottom: 5px;
+      border-radius: 20px 20px 20px 0px;
+      color: black;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      background-color: aliceblue;
+    }
+    #you{
+      margin-left: 520px;
+      display: flex;
+      align-items: center;
+      padding: 5px;
+      line-break: anywhere;
+      width: 150px;
+      height: 50px;
+      right: 0;
+      margin-bottom: 5px;
+      border-radius: 20px 20px 0px 20px;
+      color: black;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      background:linear-gradient(135deg,aliceblue,aqua);
+    }
+  </style>
+</head>
+<body><br>
+  <div id="sendMsg">
+    <div id="messages"></div>
+    <form>
+    <input type="text" id="message" placeholder="Message...">
+    <button onclick="module.send()">Send</button>
+  </form>
+  </div>
+  <script>
+    module = {}
+  </script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+  import { getDatabase,ref,set,remove,onChildAdded,onChildRemoved } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFqUgFuKtZdMHfBpHt1Akm2ghXY0K2cAM",
+    authDomain: "chatting-ed1f1.firebaseapp.com",
+    databaseURL: "https://chatting-ed1f1-default-rtdb.firebaseio.com",
+    projectId: "chatting-ed1f1",
+    storageBucket: "chatting-ed1f1.appspot.com",
+    messagingSenderId: "953657631491",
+    appId: "1:953657631491:web:4f03a2cad938041a837f36"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app)
+  let name;
+  if (sessionStorage.getItem("name")) {
+    name = sessionStorage.getItem("name")
+  }
+  else{
+    name = prompt("Your name...")
+    sessionStorage.setItem("name",name)
+  }
+  module.send = function send(){
+    let message=document.getElementById("message").value
+    let time = new Date().getTime();
+    set(ref(db,"messages/"+time),{
+      message:message,
+      name:name
+    })
+  }
+ 
+  onChildAdded(ref(db,"messages"),(data)=>{
+    let div = document.createElement("div")
+    div.id = "mes1"
+    if (data.val().name == name) {
+    div.id="you"
+    div.innerHTML = "You"+":"+data.val().message
+    }
+    else{
+    div.innerHTML = data.val().name+":"+data.val().message
+    }
+    document.getElementById("messages").appendChild(div)
+  })
+  </script>
+</body>
+</html>
